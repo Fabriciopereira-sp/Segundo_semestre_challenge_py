@@ -1,0 +1,10 @@
+[
+  {
+    "id": 1,
+    "nome": "Leonardo",
+    "descricao": "beterraba",
+    "ativo": true,
+    "criado_em": "2025-09-19T23:45:03",
+    "atualizado_em": null
+  }
+]
