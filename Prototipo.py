@@ -51,7 +51,7 @@ def validar_descricao(desc):
 
 
 def carregar():
-    """Carrega dados do JSON"""
+    """Carrega dados do JSON"""4
     global registros, proximo_id
     if not os.path.exists(DATA_FILE):
         registros, proximo_id = [], 1
@@ -73,7 +73,7 @@ def salvar():
     except Exception as e:
         log("ERRO_SAVE", str(e))
     finally:
-        # finally para mostrar que entendi o conceito
+        
         log("FINALIZADO", "Ação de salvar concluída")
 
 
