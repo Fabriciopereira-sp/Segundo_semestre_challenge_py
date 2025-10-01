@@ -43,9 +43,9 @@
     "id": 6,
     "nome": "Lucas",
     "descricao": "1,75m",
-    "ativo": true,
+    "ativo": false,
     "criado_em": "2025-09-29T12:33:46",
-    "atualizado_em": null
+    "atualizado_em": "2025-09-30T22:29:26"
   },
   {
     "id": 7,
@@ -93,6 +93,22 @@
     "descricao": "1,70m",
     "ativo": true,
     "criado_em": "2025-09-30T14:06:45",
+    "atualizado_em": null
+  },
+  {
+    "id": 13,
+    "nome": "leo",
+    "descricao": "fssf",
+    "ativo": true,
+    "criado_em": "2025-09-30T22:24:27",
+    "atualizado_em": null
+  },
+  {
+    "id": 14,
+    "nome": "oi",
+    "descricao": "fsdfsfsda",
+    "ativo": true,
+    "criado_em": "2025-09-30T22:28:48",
     "atualizado_em": null
   }
 ]

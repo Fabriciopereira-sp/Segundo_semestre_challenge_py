@@ -27,7 +27,7 @@ def log(acao, detalhe=""):
     try:
         with open(LOG_FILE, "a", encoding="utf-8") as f:
             f.write(linha + "\n")
-    except:
+    except Exception:
         pass
 
 
@@ -51,7 +51,7 @@ def validar_descricao(desc):
 
 
 def carregar():
-    """Carrega dados do JSON"""4
+    """Carrega dados do JSON"""
     global registros, proximo_id
     if not os.path.exists(DATA_FILE):
         registros, proximo_id = [], 1
@@ -59,9 +59,10 @@ def carregar():
     try:
         with open(DATA_FILE, "r", encoding="utf-8") as f:
             registros = json.load(f)
-        ids = [r.get("id", 0) for r in registros]
+        ids = [r.get("id", 0) for r in registros if isinstance(r, dict)]
         proximo_id = (max(ids) + 1) if ids else 1
-    except:
+    except Exception as e:
+        log("ERRO_CARREGAR", str(e))
         registros, proximo_id = [], 1
 
 
@@ -73,7 +74,6 @@ def salvar():
     except Exception as e:
         log("ERRO_SAVE", str(e))
     finally:
-        
         log("FINALIZADO", "Ação de salvar concluída")
 
 
@@ -117,11 +117,23 @@ def cadastrar(nome, descricao):
     return f"Registro '{novo['nome']}' cadastrado com sucesso!"
 
 
-def listar(mostrar_inativos=False):
-    """Lista registros"""
-    itens = registros if mostrar_inativos else [r for r in registros if r.get("ativo", True)]
+def listar(modo="ativos"):
+    """
+    Lista registros conforme o modo:
+    - 'ativos'   -> apenas ativos
+    - 'inativos' -> apenas inativos
+    - 'todos'    -> todos
+    """
+    if modo == "ativos":
+        itens = [r for r in registros if r.get("ativo", True)]
+    elif modo == "inativos":
+        itens = [r for r in registros if not r.get("ativo", True)]
+    else:  # 'todos'
+        itens = list(registros)
+
     if not itens:
         return "Nenhum registro encontrado."
+
     saida = ["\n=== LISTA DE REGISTROS ==="]
     for r in itens:
         status = "ativo" if r.get("ativo", True) else "inativo"
@@ -131,9 +143,9 @@ def listar(mostrar_inativos=False):
 
 def buscar(termo):
     """Busca por ID ou nome/descrição"""
-    termo = termo.lower().strip()
+    termo = str(termo).lower().strip()
     achados = [r for r in registros if str(r["id"]) == termo or
-               termo in r["nome"].lower() or termo in r["descricao"].lower()]
+               termo in str(r["nome"]).lower() or termo in str(r["descricao"]).lower()]
     if not achados:
         return "Nenhum registro encontrado."
     saida = ["\n=== RESULTADOS DA BUSCA ==="]
@@ -167,7 +179,7 @@ def alternar_ativo(id_registro, status):
     """Ativa ou inativa um registro"""
     for r in registros:
         if r["id"] == id_registro:
-            r["ativo"] = status
+            r["ativo"] = bool(status)
             r["atualizado_em"] = datetime.now().isoformat(timespec="seconds")
             salvar()
             return f"Registro {id_registro} agora está {'ativo' if status else 'inativo'}."
@@ -219,9 +231,9 @@ def relatorios_menu():
         print("0. Voltar")
         op = input("Opção: ")
         if op == "1":
-            print(listar(False)); pausar()
+            print(listar("ativos")); pausar()
         elif op == "2":
-            print(listar(True)); pausar()
+            print(listar("inativos")); pausar()
         elif op == "3":
             termo = input("Digite termo: ")
             print(buscar(termo)); pausar()
@@ -248,9 +260,9 @@ def crud_menu():
             nome = input("Nome: "); desc = input("Descrição: ")
             print(cadastrar(nome, desc)); pausar()
         elif op == "2":
-            print(listar(False)); pausar()
+            print(listar("ativos")); pausar()
         elif op == "3":
-            print(listar(True)); pausar()
+            print(listar("todos")); pausar()
         elif op == "4":
             termo = input("Termo: "); print(buscar(termo)); pausar()
         elif op == "5":
@@ -265,8 +277,11 @@ def crud_menu():
         elif op == "6":
             try:
                 _id = int(input("ID: "))
-                status = input("A para ativar, I para inativar: ").upper()
-                print(alternar_ativo(_id, status == "A"))
+                status = input("A para ativar, I para inativar: ").strip().upper()
+                if status not in {"A", "I"}:
+                    print("Erro: use 'A' para ativar ou 'I' para inativar.")
+                else:
+                    print(alternar_ativo(_id, status == "A"))
             except ValueError:
                 print("Erro: ID inválido.")
             pausar()
